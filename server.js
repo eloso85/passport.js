@@ -7,6 +7,7 @@ const app = express()
 const bcrypt = require('bcrypt')
 const flash = require('express-flash')
 const session = require('express-session')
+const methodOverride = require('method-override')
 
 const initializePassport = require('./passport-config')
 const passport = require('passport')
@@ -27,6 +28,7 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(methodOverride('_method'))
 
 app.get('/', checkAuthenticated, (req, res)=>{
     res.render('index.ejs', {name: req.user.name})
@@ -64,11 +66,17 @@ try {
 console.log(users)
 })
 
+app.delete('/logout', (req, res)=>{
+    req.logOut()
+    res.redirect('/login')
+    
+})
+
 function checkAuthenticated(req, res , next){
     if(req.isAuthenticated()){
         return next()
     }
-    res.redirect()
+    res.redirect('/login')
 }
 
 function checkNotAuthnticated(req, res, next){
